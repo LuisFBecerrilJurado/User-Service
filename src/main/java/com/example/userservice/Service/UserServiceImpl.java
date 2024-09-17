@@ -45,12 +45,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUser(User user) {
+    public User saveUser(User user) {
         boolean ageValid = ageValidation(user.getBirthDate());
         boolean userValid = userValidation(user);
         if(!userValid) throw new UserExceptions("User already exists in system");
         if (!ageValid) throw new UserExceptions("Age not valid");
         userRepository.save(user);
+        return user;
     }
 
     @Override
