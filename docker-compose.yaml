@@ -3,12 +3,12 @@ version : '3.3'
 services:
   mysql:
     image: mysql:latest
-    container_name: users-container
+    container_name: compensations-container
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: userDB
+      MYSQL_DATABASE: compensationDB
       MYSQL_PASSWORD: root
     ports:
-      - '3306:3306'
+      - '3307:3307'
     expose:
-      - '3306'
+      - '3307'
