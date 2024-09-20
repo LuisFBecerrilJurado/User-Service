@@ -23,56 +23,57 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(String idUser) {
-        return userRepository.findById(idUser).orElseThrow(()-> new UserExceptions("User Not Found"));
+    public Optional<User> getUserById(String idUser) {
+        return Optional.ofNullable(userRepository.findById(idUser).orElseThrow(() -> new UserExceptions("User Not Found")));
     }
 
     @Override
-    public User deleteUserById(String idUser) {
+    public void deleteUserById(String idUser) {
         userRepository.deleteById(idUser);
-        throw new UserExceptions("User Deleted Successfully");
     }
 
-    public boolean ageValidation(LocalDate birthDate){
+    public void ageValidation(LocalDate birthDate){
         LocalDate today = LocalDate.now();
         Period period = Period.between(birthDate, today);
-        return period.getYears() >= 18;
+        if(period.getYears() < 18) throw new UserExceptions("Age not valid");
     }
 
-    public boolean userValidation(User user){
-        if(user.getMiddleName() == null){
-            return (userRepository.existsByFirstNameAndLastNameAndBirthDate(user.getFirstName(), user.getLastName(), user.getBirthDate()));
-        }
-        return(userRepository.existsByFirstNameAndMiddleNameAndLastNameAndBirthDate(user.getFirstName(), user.getMiddleName(), user.getLastName(), user.getBirthDate()));
+    public void userValidation(User user){
+        boolean userExists = userRepository
+                .existsByFirstNameAndMiddleNameAndLastNameAndBirthDate(
+                        user.getFirstName(),
+                        user.getMiddleName(),
+                        user.getLastName(),
+                        user.getBirthDate());
+        if(userExists) throw new UserExceptions("User already exists in system");
+    }
+
+    private void validateUserFields(User user) {
+        if (user.getFirstName() == null) throw new UserExceptions("Verify the First Name field");
+        if (user.getLastName() == null) throw new UserExceptions("Verify the Last Name field");
+        if (user.getBirthDate() == null) throw new UserExceptions("Verify the Birth Date field");
+        if (user.getPosition() == null) throw new UserExceptions("Verify the Position field");
+    }
+
+    private void generateAndSetUserId(User user) {
+        String randomUserId = UUID.randomUUID().toString();
+        user.setIdUser(randomUserId);
     }
 
     @Override
-    public User saveUser(User user) {
-        boolean ageValid = ageValidation(user.getBirthDate());
-        boolean userValid = userValidation(user);
-        if(userValid) throw new UserExceptions("User already exists in system");
-        if (!ageValid) throw new UserExceptions("Age not valid");
-        String rndID = UUID.randomUUID().toString();
-        user.setIdUser(rndID);
+    public void saveUser(User user) {
+        validateUserFields(user);
+        ageValidation(user.getBirthDate());
+        userValidation(user);
+        generateAndSetUserId(user);
         userRepository.save(user);
-        return user;
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
-        Optional<User> userOptional = userRepository.findById(user.getIdUser());
-        if(userOptional.isPresent()){
-            boolean ageValid = ageValidation(user.getBirthDate());
-            if (!ageValid) throw new UserExceptions("Age not valid");
-            User userToUpdate = User.builder()
-                    .idUser(userOptional.get().getIdUser())
-                    .firstName(user.getFirstName())
-                    .middleName(user.getMiddleName())
-                    .lastName(user.getLastName())
-                    .birthDate(user.getBirthDate())
-                    .build();
-            userRepository.save(userToUpdate);
-        }
-        throw new UserExceptions("User not found in system");
+    public void updateUser(User user) {
+        validateUserFields(user);
+        ageValidation(user.getBirthDate());
+        userValidation(user);
+        userRepository.save(user);
     }
 }
