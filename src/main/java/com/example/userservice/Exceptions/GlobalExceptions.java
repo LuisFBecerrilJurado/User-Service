@@ -10,7 +10,8 @@ public class GlobalExceptions {
     @ExceptionHandler(UserExceptions.class)
     public ResponseEntity<ApiResponse> handlerNotFound(UserExceptions ue){
         String message = ue.getMessage();
-        ApiResponse response = new ApiResponse().builder()
+        new ApiResponse();
+        ApiResponse response = ApiResponse.builder()
                 .message(message)
                 .success(true)
                 .status(HttpStatus.CONFLICT)
