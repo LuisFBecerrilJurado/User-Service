@@ -34,10 +34,4 @@ public class User {
         this.birthDate = birthDate;
         this.position = position;
     }
-    public User(String firstName, String lastName, LocalDate birthDate, String position) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthDate = birthDate;
-        this.position = position;
-    }
 }
