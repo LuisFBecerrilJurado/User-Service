@@ -13,8 +13,8 @@ public class GlobalExceptions {
         ApiResponse response = new ApiResponse().builder()
                 .message(message)
                 .success(true)
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.CONFLICT)
                 .build();
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 }
